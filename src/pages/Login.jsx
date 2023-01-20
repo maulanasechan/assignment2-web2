@@ -7,6 +7,11 @@ import {
   Card,
 } from "@mui/material";
 import { useMsal } from "@azure/msal-react";
+import { useDispatch, useSelector } from "react-redux";
+import { callMsGraph } from "../utils/Graph";
+import { setLogin } from "../features/user";
+import { useEffect } from "react";
+import { Navigate, useSearchParams } from "react-router-dom";
 
 const StyledBox = styled(Box)({
   display: "flex",
@@ -35,13 +40,45 @@ const StyledCard = styled(Card)({
 });
 
 const Login = () => {
-  const { instance } = useMsal();
-
-  const hanldeSignin = () => {
-    instance.loginRedirect({
-      scopes: [`user.read`],
-    });
+  const { instance, accounts } = useMsal();
+  const [searchParams] = useSearchParams();
+  const dispatch = useDispatch();
+  const auth = useSelector((state) => state.user);
+  const loginHint = searchParams.get("login_hint");
+  const loginRequest = {
+    scopes: [`user.read`],
   };
+
+  const handleLogin = () => {
+    instance.loginRedirect(loginRequest);
+  };
+
+  useEffect(() => {
+    if (loginHint) {
+      loginRequest.extraQueryParameters = {
+        login_hint: loginHint,
+      };
+      instance.loginPopup(loginRequest).catch((error) => {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      });
+    }
+  }, [loginHint, loginRequest, instance]);
+
+  useEffect(() => {
+    instance
+      .acquireTokenSilent({
+        ...{ scopes: [`user.read`] },
+        account: accounts[0],
+      })
+      .then((response) => {
+        callMsGraph(response.accessToken).then((res) =>
+          dispatch(setLogin(res))
+        );
+      });
+  }, [instance, accounts, dispatch]);
+
+  if (auth) return <Navigate to="/" replace />;
 
   return (
     <StyledBox>
@@ -62,25 +99,38 @@ const Login = () => {
           }}
           variant="h4"
         >
-          Login
-        </Typography>
-
-        <Typography
-          sx={{
-            fontSize: "13px",
-          }}
-        >
-          Do you have an Microsoft Account ?
+          SignIN
         </Typography>
         <Button
-          variant="contained"
           sx={{
             textTransform: "none",
-            marginTop: "10px",
+            display: "flex",
+            gap: "12px",
+            padding: "12px",
+            height: "41px",
+            border: "1px solid #8c8c8c",
           }}
-          onClick={hanldeSignin}
+          onClick={handleLogin}
         >
-          Login with Azure Ad
+          <img
+            src="assets/logo/microsoft.png"
+            alt=""
+            style={{
+              width: "17px",
+              height: "17px",
+              object: "cover",
+            }}
+          />
+          <Typography
+            sx={{
+              fontWeight: "600",
+              fontFamily: "Segoe UI",
+              color: "#5e5e5e",
+              fontSize: "15px",
+            }}
+          >
+            Sign in with Microsoft
+          </Typography>
         </Button>
       </StyledCard>
     </StyledBox>
