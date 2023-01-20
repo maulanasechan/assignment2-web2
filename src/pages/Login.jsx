@@ -19,7 +19,7 @@ const StyledBox = styled(Box)({
   alignItems: "center",
   minHeight: "100vh",
   backgroundImage: `url(
-          "https://images.unsplash.com/photo-1536481351195-04a50ee18278?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTJ8fGJsdWV8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60"        
+          "https://images.unsplash.com/photo-1519181245277-cffeb31da2e3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"        
         )`,
   backgroundSize: "cover",
   backgroundPosition: "center",
@@ -99,7 +99,7 @@ const Login = () => {
           }}
           variant="h4"
         >
-          SignIN
+          Redirect
         </Typography>
         <Button
           sx={{
